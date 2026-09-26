@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>שיעורי הבית שלי</title>
+<style>
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;background:#f5f5f7;margin:0;color:#1d1d1f}
+.wrap{max-width:680px;margin:auto;padding:22px 16px 60px}
+h1{font-size:30px;margin:8px 0}.sub{color:#666;margin-bottom:18px}
+.progress{background:#ddd;border-radius:99px;overflow:hidden;height:18px}.bar{height:100%;width:0;background:#34c759;transition:.25s}
+.count{text-align:center;font-weight:700;margin:8px 0 20px}
+.card{background:white;border-radius:18px;padding:16px;margin:12px 0;box-shadow:0 2px 10px #0000000d}
+h2{font-size:20px;margin:0 0 10px}
+label{display:flex;gap:12px;align-items:center;padding:10px 2px;border-bottom:1px solid #eee;font-size:17px}
+label:last-child{border:0} input{width:24px;height:24px;accent-color:#34c759}
+.done span{text-decoration:line-through;color:#888}
+button{width:100%;padding:13px;border:0;border-radius:12px;font-size:16px;margin-top:20px}
+.celebrate{text-align:center;font-size:24px;font-weight:800;margin:14px 0}
+</style>
+</head>
+<body><div class="wrap">
+<h1>🎯 שיעורי הבית שלי</h1>
+<div class="sub">כל משימה שסיימתי = עוד ✓ בדרך לחופש 😎</div>
+<div class="progress"><div class="bar" id="bar"></div></div>
+<div class="count" id="count"></div>
+<div id="cards"></div>
+<div class="celebrate" id="celebrate"></div>
+<button onclick="resetAll()">איפוס כל הסימונים</button>
+</div>
+<script>
+const groups = {
+"🔬 מדעים":["דף עבודה 1","דף עבודה 2","דף עבודה 3","דף עבודה 4","דף עבודה 5","דף 1 בחוברת","דף 2 בחוברת"],
+"➗ מתמטיקה":["לסיים את התרגיל שנשאר","הכנה לבוחן – סבב 1","חזרה קצרה לבוחן"],
+"📐 גיאומטריה":["דף עבודה 1","דף עבודה 2","דף עבודה 3"],
+"🇬🇧 אנגלית":["אנסין 1","אנסין 2","אנסין 3","דפים בחוברת – חלק 1","דפים בחוברת – חלק 2"],
+"📝 שפה":["משימה במחשב","הכנה לבוחן – סבב 1","חזרה קצרה לבוחן"],
+"🇮🇱 תרבות ישראל":["להתחיל את המצגת","להכין את התוכן","לסדר ולעצב את המצגת","לעבור ולוודא שהכול מוכן"],
+"📋 תקנון":["לעבור על החומר לבוחן","לבדוק שאני יודע את החומר","חזרה קצרה"],
+"📚 ספרות":["קריאה – חלק 1","קריאה – חלק 2","קריאה – חלק 3","לסיים את הספר"]
+};
+const root=document.getElementById("cards");
+let idx=0;
+Object.entries(groups).forEach(([g,tasks])=>{
+ const c=document.createElement("div"); c.className="card";
+ const h=document.createElement("h2");h.textContent=g;c.appendChild(h);
+ tasks.forEach(task=>{
+   const id="task_"+idx++;
+   const lab=document.createElement("label");
+   const cb=document.createElement("input");cb.type="checkbox";cb.id=id;
+   try{cb.checked=localStorage.getItem(id)==="1"}catch(e){}
+   const s=document.createElement("span");s.textContent=task;
+   lab.append(cb,s); if(cb.checked)lab.classList.add("done");
+   cb.addEventListener("change",()=>{try{localStorage.setItem(id,cb.checked?"1":"0")}catch(e){}; lab.classList.toggle("done",cb.checked);update()});
+   c.appendChild(lab);
+ });
+ root.appendChild(c);
+});
+function update(){
+ const a=[...document.querySelectorAll('input[type=checkbox]')], n=a.filter(x=>x.checked).length, total=a.length;
+ const pct=Math.round(n/total*100);
+ document.getElementById("bar").style.width=pct+"%";
+ document.getElementById("count").textContent=n+" מתוך "+total+" משימות הסתיימו • "+pct+"%";
+ document.getElementById("celebrate").textContent=n===total?"🏆 סיימתי הכול! חמישי–שבת חופש! 🎉":"";
+}
+function resetAll(){
+ if(confirm("לאפס את כל הסימונים?")){
+  document.querySelectorAll('input[type=checkbox]').forEach(x=>{x.checked=false;try{localStorage.removeItem(x.id)}catch(e){};x.parentElement.classList.remove("done")});update();
+ }
+}
+update();
+</script></body></html>
