@@ -40,18 +40,23 @@ const groups = {
 "📚 ספרות":["קריאה – חלק 1","קריאה – חלק 2","קריאה – חלק 3","לסיים את הספר"]
 };
 const root=document.getElementById("cards");
+// המפתח לשמירה נגזר משם המקצוע והמשימה, לא ממספר סידורי:
+// כך הוספה או הסרה של משימה באמצע לא מזיזה את הסימונים של השאר.
+// התחילית hw. מפרידה אותנו מדפים אחרים שמתארחים על אותו github.io.
+const key = (g,task) => "hw." + encodeURIComponent(g + "|" + task);
 let idx=0;
 Object.entries(groups).forEach(([g,tasks])=>{
  const c=document.createElement("div"); c.className="card";
  const h=document.createElement("h2");h.textContent=g;c.appendChild(h);
  tasks.forEach(task=>{
    const id="task_"+idx++;
+   const store=key(g,task);
    const lab=document.createElement("label");
-   const cb=document.createElement("input");cb.type="checkbox";cb.id=id;
-   try{cb.checked=localStorage.getItem(id)==="1"}catch(e){}
+   const cb=document.createElement("input");cb.type="checkbox";cb.id=id;cb.dataset.store=store;
+   try{cb.checked=localStorage.getItem(store)==="1"}catch(e){}
    const s=document.createElement("span");s.textContent=task;
    lab.append(cb,s); if(cb.checked)lab.classList.add("done");
-   cb.addEventListener("change",()=>{try{localStorage.setItem(id,cb.checked?"1":"0")}catch(e){}; lab.classList.toggle("done",cb.checked);update()});
+   cb.addEventListener("change",()=>{try{localStorage.setItem(store,cb.checked?"1":"0")}catch(e){}; lab.classList.toggle("done",cb.checked);update()});
    c.appendChild(lab);
  });
  root.appendChild(c);
@@ -65,7 +70,7 @@ function update(){
 }
 function resetAll(){
  if(confirm("לאפס את כל הסימונים?")){
-  document.querySelectorAll('input[type=checkbox]').forEach(x=>{x.checked=false;try{localStorage.removeItem(x.id)}catch(e){};x.parentElement.classList.remove("done")});update();
+  document.querySelectorAll('input[type=checkbox]').forEach(x=>{x.checked=false;try{localStorage.removeItem(x.dataset.store)}catch(e){};x.parentElement.classList.remove("done")});update();
  }
 }
 update();
